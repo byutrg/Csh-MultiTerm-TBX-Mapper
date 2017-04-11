@@ -71,17 +71,38 @@ namespace MultiTermTBXMapper
         private void dcs_tbx_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ListBoxItem item = ((sender as ListBox).SelectedItem as ListBoxItem);
+            item.MouseDoubleClick += ListBoxItem_MouseDoubleClick;
             dc_name_block.Text = item.Content.ToString();
 
-            if ((sender as ListBox).SelectedIndex > 0)
+            if (((sender as ListBox).SelectedItem as ListBoxItem).Content.ToString() != "None: Do Not Map" && ((sender as ListBox).SelectedItem as ListBoxItem).Content.ToString() != "Varies By Content")
             {
                 textblock_xml.Text = datcat_dict[item.Content.ToString()][0];
                 textbox_descrip.Text = datcat_dict[item.Content.ToString()][1];
             }
+            else if (((sender as ListBox).SelectedItem as ListBoxItem).Content.ToString() == "Varies By Content")
+            {
+                textblock_xml.Text = "NOT A TBX DATA CATEGORY";
+                textbox_descrip.Text = "The allowed values of your data category map to different TBX data categories:\n" +
+                    "\n" +
+                    "Example:\n" +
+                    "\tData Category: \"Type\"\n" +
+                    "\tAllowed Values:\n" +
+                    "\t\tshort form - Maps to TBX data category /termType/\n" +
+                    "\t\tantonym    - Maps to TBX data category /antonymTerm/\n";
+            }
             else
             {
-                textblock_xml.Text = "";
-                textbox_descrip.Text = "";
+                textblock_xml.Text = "NOT A TBX DATA CATEGORY";
+                textbox_descrip.Text = "Your data category will NOT be mapped to a TBX data category.  " +
+                    "The data category will instead be placed in an invalid dummy /unknownTermType/ element:\n" +
+                    "\n" +
+                    "\tExample: \n" +
+                    "\n" +
+                    "\t<termNote type='unknownTermType'>CONTENT</termNote>\n" +
+                    "\n" +
+                    "\n" +
+                    "\n" +
+                    "NOTE: The dummy elements will need to be removed before the TBX file is valid.";
             }
         }
 
@@ -123,11 +144,22 @@ namespace MultiTermTBXMapper
             return 0;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void select()
         {
-            if (dcs_tbx.SelectedIndex > 0)
+            if ((dcs_tbx.SelectedItem as ListBoxItem) != null)
             {
-                selected((dcs_tbx.SelectedItem as ListBoxItem).Content.ToString());
+                if ((dcs_tbx.SelectedItem as ListBoxItem).Content.ToString() != "None: Do Not Map" && (dcs_tbx.SelectedItem as ListBoxItem).Content.ToString() != "Varies By Content")
+                {
+                    selected((dcs_tbx.SelectedItem as ListBoxItem).Content.ToString());
+                }
+                else if ((dcs_tbx.SelectedItem as ListBoxItem).Content.ToString() == "Varies By Content")
+                {
+                    selected("VARIES");
+                }
+                else
+                {
+                    selected(null);
+                }
             }
             else
             {
@@ -135,6 +167,16 @@ namespace MultiTermTBXMapper
             }
 
             Close();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            select();
+        }
+
+        private void ListBoxItem_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            select();
         }
     }
 }

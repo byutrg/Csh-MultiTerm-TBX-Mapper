@@ -85,8 +85,26 @@
     <Compile Include="Menu\DatCatHandler.xaml.cs">
       <DependentUpon>DatCatHandler.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Menu\DatCatListBoxTypeControl.xaml.cs">
+      <DependentUpon>DatCatListBoxTypeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Menu\DatCatMapControl.xaml.cs">
       <DependentUpon>DatCatMapControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menu\PickListHandler.xaml.cs">
+      <DependentUpon>PickListHandler.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menu\PickListMapControl.xaml.cs">
+      <DependentUpon>PickListMapControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menu\VariantHandler.xaml.cs">
+      <DependentUpon>VariantHandler.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menu\VariantPicklistHandler.xaml.cs">
+      <DependentUpon>VariantPicklistHandler.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menu\VariantPicklistMapControl.xaml.cs">
+      <DependentUpon>VariantPicklistMapControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="TBXDatabase.cs" />
     <Compile Include="ISwitchable.cs" />
@@ -115,7 +133,31 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Menu\DatCatListBoxTypeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Menu\DatCatMapControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Menu\PickListHandler.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Menu\PickListMapControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Menu\VariantHandler.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Menu\VariantPicklistHandler.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Menu\VariantPicklistMapControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -161,6 +203,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\arrow_thinner.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\arrow_skinny.png" />
+    <Content Include="Resources\tbx_data_categories_with_definitions_picklists.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Resources\forward_slash.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

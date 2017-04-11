@@ -43,7 +43,7 @@ namespace MultiTermTBXMapper
 
         private static void BuildDB()
         {
-            string script = File.ReadAllText(@"Resources/tbx_data_categories_with_definitions.sql");
+            string script = File.ReadAllText(@"Resources/tbx_data_categories_with_definitions_picklists.sql");
             SQLiteCommand command = new SQLiteCommand(script, con);
             command.ExecuteNonQuery();
         }
@@ -94,6 +94,35 @@ namespace MultiTermTBXMapper
             }
 
             return datcats;
+        }
+
+        public static Dictionary<string, List<string[]>> getPicklists()
+        {
+            string query = "select categories.name, picklists.value, picklists.description from picklists left join categories on picklists.category_id = categories.id";
+
+            SQLiteCommand command = new SQLiteCommand(query, con);
+
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            Dictionary<string,List<string[]>> picklists = new Dictionary<string,List<string[]>>();
+
+            while(reader.Read())
+            {
+                string n = reader["name"].ToString();
+                string v = reader["value"].ToString();
+                string d = reader["description"].ToString();
+
+                if (picklists.Keys.Contains(n))
+                {
+                    picklists[n].Add( new string[2] { v, d } );
+                }
+                else
+                {
+                    picklists.Add(n, new List<string[]> { new string[2] { v, d } });
+                }
+            }
+
+            return picklists;
         }
     }
 }

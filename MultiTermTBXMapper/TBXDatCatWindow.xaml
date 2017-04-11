@@ -21,7 +21,7 @@
             <Label x:Name="label_dc_element" Grid.Row="1" Content="Element:" FontSize="20" Margin="0,10,0,0" />
             <TextBlock x:Name="textblock_xml" Grid.Row="1" FontSize="20" Margin="115,0,22,287" Height="24" Width="360" VerticalAlignment="Bottom" />
             <Label x:Name="label_descrip" Grid.Row="1" Content="Description:" Target="{Binding ElementName=textBlock_description}" FontSize="20" Margin="0,60,0,0" />
-            <TextBox x:Name="textbox_descrip" Grid.Row="1" Margin="10,100,10,0" />
+            <TextBox x:Name="textbox_descrip" Grid.Row="1" Margin="10,100,10,0" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" />
             <Button Content="Select" Grid.Row="2" Height="50" Width="280" Click="Button_Click" />
         </Grid>
         <Grid Grid.Column="0">
@@ -31,7 +31,8 @@
             </Grid.RowDefinitions>
             <Label Content="TBX Data Categories" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4,0,0,4"/>
             <ListBox Grid.Row="1" Name="dcs_tbx" BorderBrush="Gray" BorderThickness="1" SelectionChanged="dcs_tbx_SelectionChanged">
-                <ListBoxItem Content="None: Do Not Map"/>
+                <ListBoxItem Content="None: Do Not Map" MouseDoubleClick="ListBoxItem_MouseDoubleClick"/>
+                <ListBoxItem Content="Varies By Content" MouseDoubleClick="ListBoxItem_MouseDoubleClick" />
             </ListBox>
             <TextBox Style="{StaticResource placeHolder}" Tag="Search" HorizontalAlignment="Right" Height="23" Grid.Row="0" Margin="0,0,4,2" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="180" TextChanged="TextBox_TextChanged" />
             <Image HorizontalAlignment="Right" Height="20" Grid.Row="0" Margin="0,0,6,3" VerticalAlignment="Bottom" Width="20" Source="Resources/magnifying_glass.png">

@@ -82,6 +82,7 @@ namespace MultiTermTBXMapper.Menu
                 {
                     value = "NONE";
                 }
+                
                 setMapping(value);
             };
 
