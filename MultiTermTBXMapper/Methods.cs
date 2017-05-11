@@ -34,7 +34,7 @@ namespace MultiTermTBXMapper
             }
         }
 
-        public static string[] getKeyArray(ref Dictionary<string,string>.KeyCollection keyCol)
+        public static string[] getKeyArray(ref Dictionary<string, Dictionary<string, string>>.KeyCollection keyCol)
         {
             string[] keys = new string[keyCol.Count];
             int i = 0;
@@ -45,6 +45,19 @@ namespace MultiTermTBXMapper
             }
 
             return keys;
+        }
+        
+        public static bool inListBoxItemCollection(ref ItemCollection items, string i)
+        {
+            foreach (ListBoxItem item in items)
+            {
+                if (item.Content.ToString() == i)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static bool inList(ref List<string> a, string e)
@@ -98,5 +111,6 @@ namespace MultiTermTBXMapper
             }
             return false;
         }
+
     }
 }

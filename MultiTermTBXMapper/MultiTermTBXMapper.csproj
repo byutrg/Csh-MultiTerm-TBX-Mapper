@@ -82,6 +82,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Classes.cs" />
     <Compile Include="Menu\DatCatHandler.xaml.cs">
       <DependentUpon>DatCatHandler.xaml</DependentUpon>
     </Compile>
@@ -97,8 +98,8 @@
     <Compile Include="Menu\PickListMapControl.xaml.cs">
       <DependentUpon>PickListMapControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Menu\VariantHandler.xaml.cs">
-      <DependentUpon>VariantHandler.xaml</DependentUpon>
+    <Compile Include="Menu\ConversionHandler.xaml.cs">
+      <DependentUpon>ConversionHandler.xaml</DependentUpon>
     </Compile>
     <Compile Include="Menu\VariantPicklistHandler.xaml.cs">
       <DependentUpon>VariantPicklistHandler.xaml</DependentUpon>
@@ -149,7 +150,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Menu\VariantHandler.xaml">
+    <Page Include="Menu\ConversionHandler.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

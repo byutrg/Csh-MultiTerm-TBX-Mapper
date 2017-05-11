@@ -17,7 +17,7 @@ namespace MultiTermTBXMapper
             con = new SQLiteConnection("Data Source=tbx_datcats.sqlite;Version=3;");
             con.Open();
 
-            if(IsDBEmpty())
+            if (IsDBEmpty())
             {
                 BuildDB();
             }
@@ -68,9 +68,9 @@ namespace MultiTermTBXMapper
 
             List<string[]> datcats = new List<string[]>();
 
-            while(reader.Read())
+            while (reader.Read())
             {
-                string[] dc = new string[3] { (string) reader["name"], (string) reader["element"], (string) reader["description"] };
+                string[] dc = new string[3] { (string)reader["name"], (string)reader["element"], (string)reader["description"] };
                 datcats.Add(dc);
             }
 
@@ -104,9 +104,9 @@ namespace MultiTermTBXMapper
 
             SQLiteDataReader reader = command.ExecuteReader();
 
-            Dictionary<string,List<string[]>> picklists = new Dictionary<string,List<string[]>>();
+            Dictionary<string, List<string[]>> picklists = new Dictionary<string, List<string[]>>();
 
-            while(reader.Read())
+            while (reader.Read())
             {
                 string n = reader["name"].ToString();
                 string v = reader["value"].ToString();
@@ -114,7 +114,7 @@ namespace MultiTermTBXMapper
 
                 if (picklists.Keys.Contains(n))
                 {
-                    picklists[n].Add( new string[2] { v, d } );
+                    picklists[n].Add(new string[2] { v, d });
                 }
                 else
                 {
@@ -123,6 +123,54 @@ namespace MultiTermTBXMapper
             }
 
             return picklists;
+        }
+
+        public static List<string> getDCsWithPicklists()
+        {
+            string query = "select categories.name from picklists left join categories on picklists.category_id = categories.id";
+
+            SQLiteCommand command = new SQLiteCommand(query, con);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            List<string> tbx_dcs = new List<string>();
+
+            while (reader.Read())
+            {
+                if (!Methods.inList(ref tbx_dcs, reader["name"].ToString()))
+                {
+                    tbx_dcs.Add(reader["name"].ToString());
+                }
+            }
+
+            return tbx_dcs;
+        }
+
+        public static Dictionary<string, Dictionary<string, string>> getDCInfo()
+        {
+            string query = "select name, element, level from categories";
+
+            SQLiteCommand command = new SQLiteCommand(query, con);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            Dictionary<string, Dictionary<string, string>> dcInfo = new Dictionary<string, Dictionary<string, string>>();
+
+            while(reader.Read())
+            {
+                if (reader["element"].ToString() == null || reader["element"].ToString() == "")
+                {
+                    continue;
+                }
+
+                Dictionary<string, string> info = new Dictionary<string, string>()
+                {
+                    { "element", reader["element"].ToString() },
+                    { "level", reader["level"].ToString() }
+                };
+
+                dcInfo.Add(reader["name"].ToString(), info);
+            }
+
+            return dcInfo;
         }
     }
 }

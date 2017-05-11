@@ -1,17 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace MultiTermTBXMapper.Menu
 {
@@ -20,38 +10,32 @@ namespace MultiTermTBXMapper.Menu
     /// </summary>
     public partial class PickListHandler : UserControl, ISwitchable
     {
-        private Dictionary<string, object[]> fullMapping = new Dictionary<string, object[]>();
+        private MappingDict mapping = new MappingDict();
         private List<string> dcs_with_picklists = new List<string>();
-
-        private Dictionary<string, string> datcat_mapping;
-        private Dictionary<string, List<string>> user_dc_values;
         private Dictionary<string, List<string[]>> tbx_picklists = TBXDatabase.getPicklists();
 
-        private int dcIndex = 0;
+        private int index = 0;
 
-        public PickListHandler(ref Dictionary<string, string> mapping, ref Dictionary<string, List<string>> user_dc_values)
+        public PickListHandler(ref MappingDict mapping)
         {
             InitializeComponent();
 
-            datcat_mapping = mapping;
-            this.user_dc_values = user_dc_values;
+            this.mapping = mapping;
+            dcs_with_picklists = mapping.getDCsWithPicklists();
 
-            fillFullMappingKeys();
             display();
         }
 
         private void display()
         {
-            string dc = dcs_with_picklists[dcIndex];
-
             clearGrid();
-            fillGrid(dc);
-            editHead(dc);
+            fillGrid();
+            editHead();
         }
 
-        private void editHead(string dc_key)
+        private void editHead()
         {
-            string headText = "Picklist values for " + dc_key;
+            string headText = "Picklist values for " + dcs_with_picklists[index];
             textblock_head.Text = headText;
         }
 
@@ -61,47 +45,41 @@ namespace MultiTermTBXMapper.Menu
             
         }
 
-        private void fillGrid(string dc_key)
+        private void fillGrid()
         {
             Grid grid = new Grid();
             grid.HorizontalAlignment = HorizontalAlignment.Stretch;
             grid.VerticalAlignment = VerticalAlignment.Stretch;
             canvas_pls.Children.Add(grid);
+            //Cycle through each Picklist
 
-            Dictionary<string, string>.KeyCollection pl_mapKeys = (fullMapping[dc_key][1] as Dictionary<string, string>).Keys;
 
-            string[] keys = Methods.getKeyArray(ref pl_mapKeys);
-
-            foreach (string key in keys)
+            dcs_with_picklists.ForEach(delegate(string dc)
             {
-                Dictionary<string, string> entry = (fullMapping[dc_key][1] as Dictionary<string, string>);
-
-                createPicklistMapControl(dc_key, key, ref entry, ref grid);
-            }
+                mapping.getContentList(dc)?.ForEach(delegate (string content)
+                {
+                    createPicklistMapControl(dc, content, ref grid);
+                });
+            });
         }
 
-        private void createPicklistMapControl(string dc_key, string pl_key, ref Dictionary<string, string> entry, ref Grid grid)
+        private void createPicklistMapControl(string user_dc, string pl_content, ref Grid grid)
         {
-            PickListMapControl plmc = new PickListMapControl();
-            plmc.label_picklist_item.Content = pl_key;
-            plmc.HorizontalAlignment = HorizontalAlignment.Center;
-            plmc.Margin = new Thickness(50, 2, 50, 2);
-            plmc.combo_tbx_picklist.SelectionChanged += Item_Selected;
+            PickListMapControl plmc = new PickListMapControl(pl_content);
 
-            fillTBXComboBox(ref plmc.combo_tbx_picklist, fullMapping[dc_key][0].ToString());
+            plmc.select += value => setMapping(value[0], value[1]);
 
-            if (entry[pl_key] != null)
+            string tbx_dc = mapping.getTBXContentMap(user_dc)?.Get(pl_content);
+
+            if (tbx_dc == null)
             {
-                foreach (ComboBoxItem item in plmc.combo_tbx_picklist.Items)
-                {
-                    if (entry[pl_key] == item.Content.ToString())
-                    {
-                        plmc.combo_tbx_picklist.SelectedItem = item;
-                        break;
-                    }
-                }
+                tbx_dc = mapping.getTBXMappingList(user_dc)[0];
+                mapping.getTBXContentMap(user_dc).Add(pl_content, tbx_dc);
             }
 
+            string tbx_selected = mapping.getPicklistMapValue(user_dc, pl_content);
+
+            fillTBXComboBox(ref plmc.combo_tbx_picklist, mapping.getTBXContentMap(user_dc)?.Get(pl_content), tbx_selected);
 
             grid.Children.Add(plmc);
 
@@ -112,115 +90,36 @@ namespace MultiTermTBXMapper.Menu
             plmc.SetValue(Grid.RowProperty, grid.RowDefinitions.Count - 1);
         }
 
-        private void fillTBXComboBox(ref ComboBox box, string tbx_dc)
+        private void fillTBXComboBox(ref ComboBox box, string tbx_dc_key, string tbx_selected = null)
         {
-            for(int i = 0; i < tbx_picklists[tbx_dc].Count; i++)
+            for(int i = 0; i < tbx_picklists[tbx_dc_key].Count; i++)
             {
                 ComboBoxItem item = new ComboBoxItem();
-                item.Content = tbx_picklists[tbx_dc][i][0];
+                item.Content = tbx_picklists[tbx_dc_key][i][0];
 
+                if (tbx_selected == tbx_picklists[tbx_dc_key][i][0])
+                {
+                    item.IsSelected = true;
+                }
                 box.Items.Add(item);
             }
         }
 
-        private void Item_Selected(object sender, RoutedEventArgs e)
-        {
-            PickListMapControl plmc = (((sender as ComboBox).Parent as Grid).Parent as PickListMapControl);
-
-            setMapping(plmc.label_picklist_item.Content.ToString(), ((sender as ComboBox).SelectedItem as ComboBoxItem).Content.ToString());
-        }
-
         private void setMapping(string user_pl, string tbx_pl)
         {
-            string dc = dcs_with_picklists[dcIndex];
+            string dc = dcs_with_picklists[index];
 
-            (fullMapping[dc][1] as Dictionary<string, string>)[user_pl] = tbx_pl;
-
+            mapping.setPicklistMap(dc, user_pl, tbx_pl);
             checkCompletion();
         }
 
         private void checkCompletion()
         {
-            bool complete = true;
-            foreach (string dc in dcs_with_picklists)
-            {
-                foreach(string key in (fullMapping[dc][1] as Dictionary<string, string>).Keys)
-                {
-                    if ((fullMapping[dc][1] as Dictionary<string, string>)[key] == null)
-                    {
-                        complete = false;
-                        break;
-                    }
-                }
-            }
-            if (complete)
+            if (mapping.isGroupMappedToTBXPicklist(ref dcs_with_picklists))
             {
                 submit.IsEnabled = true;
             }
         }
-
-        private void fillFullMappingKeys()
-        {
-            foreach(string key in datcat_mapping.Keys)
-            {
-                if (hasTBXPicklist(key) || datcat_mapping[key] == "VARIES")
-                {
-                    if (datcat_mapping[key] != "VARIES")
-                    {
-                        fullMapping.Add(key, new object[2] { datcat_mapping[key], new Dictionary<string, string>() });
-
-                        for (int i = 0; i < user_dc_values[key].Count; i++)
-                        {
-                            (fullMapping[key][1] as Dictionary<string, string>).Add(user_dc_values[key][i], null);
-                        }
-
-
-                        dcs_with_picklists.Add(key);
-                    }
-                    else
-                    {
-                        fullMapping.Add(key, new object[3] { null, new string[user_dc_values[key].Count], new Dictionary<string,object[]>() });
-                        
-                        for (int i = 0; i < user_dc_values[key].Count; i++)
-                        {
-                            (fullMapping[key][1] as string[])[i] = user_dc_values[key][i];
-                        }
-                    }
-                }
-                else
-                {
-
-                    fullMapping.Add(key, new object[1] { datcat_mapping[key] });
-                }
-            }
-        }
-
-        private void findUserPicklists(string key)
-        {
-            foreach(string ukey in user_dc_values.Keys)
-            {
-                if (fullMapping[ukey].Length == 2)
-                {
-                    for (int i = 0; i < user_dc_values[ukey].Count; i++)
-                    {
-                        (fullMapping[ukey][1] as Dictionary<string, string>).Add(user_dc_values[ukey][i], null);
-                    }
-                }
-            }
-        }
-
-        private bool hasTBXPicklist(string key)
-        {
-            if (tbx_picklists.Keys.Contains(datcat_mapping[key]))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         public void UtilizeState(object state)
         {
             throw new NotImplementedException();
@@ -228,19 +127,19 @@ namespace MultiTermTBXMapper.Menu
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Methods.incrementIndex(ref dcIndex, dcs_with_picklists.Count);
+            Methods.incrementIndex(ref index, dcs_with_picklists.Count);
             display();
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            Methods.decrementIndex(ref dcIndex);
+            Methods.decrementIndex(ref index);
             display();
         }
 
         private void submit_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new VariantHandler(fullMapping));
+            Switcher.Switch(new ConversionHandler(mapping));
         }
     }
 }

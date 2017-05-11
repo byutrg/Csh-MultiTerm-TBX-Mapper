@@ -1,18 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
 namespace MultiTermTBXMapper.Menu
 {
     /// <summary>
@@ -20,9 +8,22 @@ namespace MultiTermTBXMapper.Menu
     /// </summary>
     public partial class PickListMapControl : UserControl
     {
-        public PickListMapControl()
+        public Action<string[]> select;
+
+        public PickListMapControl(string pl_content)
         {
             InitializeComponent();
+
+            label_picklist_item.Content = pl_content;
+            HorizontalAlignment = HorizontalAlignment.Center;
+            Margin = new Thickness(50, 2, 50, 2);
+
+            combo_tbx_picklist.SelectionChanged += Item_Selected;
+        }
+
+        private void Item_Selected(object sender, RoutedEventArgs e)
+        {
+            select(new string[2] { label_picklist_item.Content.ToString(), ((sender as ComboBox).SelectedItem as ComboBoxItem).Content.ToString() });
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace MultiTermTBXMapper
 {
@@ -19,7 +20,7 @@ namespace MultiTermTBXMapper
 
         public event Action<string> selected;
 
-        public TBXDatCatWindow(string selected = null)
+        public TBXDatCatWindow(string selected = "None: Do Not Map")
         {
             InitializeComponent();
 
@@ -27,11 +28,11 @@ namespace MultiTermTBXMapper
             cleanData();
 
             populateListBox();
-            if (selected != null)
-            {
-                int index = getListItemIndex(selected);
-                (dcs_tbx.Items[index] as ListBoxItem).IsSelected = true;
-            }
+            //if (selected != null)
+            //{
+            int index = getListItemIndex(selected);
+            (dcs_tbx.Items[index] as ListBoxItem).IsSelected = true;
+            //}
         }
 
         private void cleanData()
@@ -74,21 +75,10 @@ namespace MultiTermTBXMapper
             item.MouseDoubleClick += ListBoxItem_MouseDoubleClick;
             dc_name_block.Text = item.Content.ToString();
 
-            if (((sender as ListBox).SelectedItem as ListBoxItem).Content.ToString() != "None: Do Not Map" && ((sender as ListBox).SelectedItem as ListBoxItem).Content.ToString() != "Varies By Content")
+            if (((sender as ListBox).SelectedItem as ListBoxItem).Content.ToString() != "None: Do Not Map")
             {
                 textblock_xml.Text = datcat_dict[item.Content.ToString()][0];
                 textbox_descrip.Text = datcat_dict[item.Content.ToString()][1];
-            }
-            else if (((sender as ListBox).SelectedItem as ListBoxItem).Content.ToString() == "Varies By Content")
-            {
-                textblock_xml.Text = "NOT A TBX DATA CATEGORY";
-                textbox_descrip.Text = "The allowed values of your data category map to different TBX data categories:\n" +
-                    "\n" +
-                    "Example:\n" +
-                    "\tData Category: \"Type\"\n" +
-                    "\tAllowed Values:\n" +
-                    "\t\tshort form - Maps to TBX data category /termType/\n" +
-                    "\t\tantonym    - Maps to TBX data category /antonymTerm/\n";
             }
             else
             {
@@ -148,22 +138,8 @@ namespace MultiTermTBXMapper
         {
             if ((dcs_tbx.SelectedItem as ListBoxItem) != null)
             {
-                if ((dcs_tbx.SelectedItem as ListBoxItem).Content.ToString() != "None: Do Not Map" && (dcs_tbx.SelectedItem as ListBoxItem).Content.ToString() != "Varies By Content")
-                {
-                    selected((dcs_tbx.SelectedItem as ListBoxItem).Content.ToString());
-                }
-                else if ((dcs_tbx.SelectedItem as ListBoxItem).Content.ToString() == "Varies By Content")
-                {
-                    selected("VARIES");
-                }
-                else
-                {
-                    selected(null);
-                }
-            }
-            else
-            {
-                selected(null);
+                
+                selected((dcs_tbx.SelectedItem as ListBoxItem).Content.ToString());
             }
 
             Close();

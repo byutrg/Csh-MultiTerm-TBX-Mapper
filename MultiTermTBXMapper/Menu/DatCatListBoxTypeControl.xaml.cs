@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using DuoVia.FuzzyStrings;
 
 namespace MultiTermTBXMapper.Menu
 {
@@ -20,7 +13,7 @@ namespace MultiTermTBXMapper.Menu
     /// </summary>
     public partial class DatCatListBoxTypeControl : UserControl
     {
-        public Action<string[]> ListBoxItems;
+        public Action<TBXMappingList> ListBoxItems;
 
         public DatCatListBoxTypeControl()
         {
@@ -32,11 +25,11 @@ namespace MultiTermTBXMapper.Menu
             Methods.removeListBoxItems(ref lb_tbx_dcs);
         }
 
-        public void fillItems(string[] tbx_dcs)
+        public void fillItems(List<string> tbx_dcs)
         {
             if (tbx_dcs != null)
             {
-                for (int i = 0; i < tbx_dcs.Length; i++)
+                for (int i = 0; i < tbx_dcs.Count; i++)
                 {
                     ListBoxItem item = new ListBoxItem();
                     item.Content = tbx_dcs[i];
@@ -46,22 +39,54 @@ namespace MultiTermTBXMapper.Menu
             }
         }
 
+        public void findBest(string dc)
+        {
+            List<string[]> datcats = TBXDatabase.getNames();
+            int bestDistance = 99999;
+            int bestIndex = -1;
+
+            for (int i = 0; i < datcats.Count(); i++)
+            {
+                int distance = datcats[i][0].LevenshteinDistance(dc);
+
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    bestIndex = i;
+                }
+            }
+
+            if (bestDistance < dc.ToCharArray().Count() / 2)
+            {
+                ListBoxItem tbx = new ListBoxItem();
+
+                tbx.Content = datcats[bestIndex][0];
+
+                lb_tbx_dcs.Items.Add(tbx);
+            }
+
+            updateItems();
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             TBXDatCatWindow tbxWindow = new TBXDatCatWindow();
 
             tbxWindow.Show();
-            tbxWindow.dcs_tbx.Items.RemoveAt(0);
-            tbxWindow.dcs_tbx.Items.RemoveAt(0);
 
             tbxWindow.selected += value =>
             {
-                ListBoxItem item = new ListBoxItem();
-                item.Content = value;
+                ItemCollection itemCol = lb_tbx_dcs.Items;
+                if (!Methods.inListBoxItemCollection(ref itemCol, value))
+                {
 
-                lb_tbx_dcs.Items.Add(item);
+                    ListBoxItem item = new ListBoxItem();
+                    item.Content = value;
 
-                updateItems();
+                    lb_tbx_dcs.Items.Add(item);
+
+                    updateItems();
+                }
             };
         }
 
@@ -77,14 +102,26 @@ namespace MultiTermTBXMapper.Menu
 
         private void updateItems()
         {
-            string[] items = new string[lb_tbx_dcs.Items.Count];
+            TBXMappingList items = new TBXMappingList();
             for (int i = 0; i < lb_tbx_dcs.Items.Count; i++)
             {
-                items[i] = (lb_tbx_dcs.Items[i] as ListBoxItem).Content.ToString();
+                items.Add((lb_tbx_dcs.Items[i] as ListBoxItem).Content.ToString());
             }
 
             ListBoxItems(items);
         }
 
+        private void lb_tbx_dcs_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                if((sender as ListBox).SelectedItem != null)
+                {
+                    (sender as ListBox).Items.Remove((sender as ListBox).SelectedItem);
+
+                    updateItems();
+                }
+            }
+        }
     }
 }

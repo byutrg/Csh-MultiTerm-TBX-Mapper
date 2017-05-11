@@ -32,6 +32,7 @@ namespace MultiTermTBXMapper
 
         public void Navigate(UserControl nextPage)
         {
+            this.Content = null;
             this.Content = nextPage;
         }
 
