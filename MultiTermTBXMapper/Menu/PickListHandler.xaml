@@ -38,7 +38,7 @@
                     </Grid.ColumnDefinitions>
                     <Button Style="{StaticResource LeftArrowButton}" Grid.Row="1" Grid.Column="0" Click="Button_Click_1"/>
                     <Button Style="{StaticResource RightArrowButton}" Grid.Row="1" Grid.Column="2" Click="Button_Click"/>
-                    <TextBlock Name="textblock_head" Text="Categories for DatCat" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26" />
+                    <TextBlock Name="textblock_head" Text="Picklists for DatCat" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26" />
                 </Grid>
                 <Canvas Name="canvas_pls" Grid.Row="2" Margin="119,0,119,106"/>
                 <Button Name="submit" Content="Next" Grid.Row="2" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="32" Margin="294,0,295,59" Width="216" Click="submit_Click" />

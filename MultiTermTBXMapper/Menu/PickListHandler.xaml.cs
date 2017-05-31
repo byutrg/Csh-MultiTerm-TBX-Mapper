@@ -12,6 +12,7 @@ namespace MultiTermTBXMapper.Menu
     {
         private MappingDict mapping = new MappingDict();
         private List<string> dcs_with_picklists = new List<string>();
+        private Dictionary<string, bool> mappedPicklists = new Dictionary<string,bool>();
         private Dictionary<string, List<string[]>> tbx_picklists = TBXDatabase.getPicklists();
 
         private int index = 0;
@@ -23,6 +24,8 @@ namespace MultiTermTBXMapper.Menu
             this.mapping = mapping;
             dcs_with_picklists = mapping.getDCsWithPicklists();
 
+            fillMappedPicklistsDict();
+
             display();
         }
 
@@ -30,6 +33,7 @@ namespace MultiTermTBXMapper.Menu
         {
             clearGrid();
             fillGrid();
+            textblock_head.Text = "Picklists for " + dcs_with_picklists[index].ToString();
             editHead();
         }
 
@@ -45,6 +49,17 @@ namespace MultiTermTBXMapper.Menu
             
         }
 
+        private void fillMappedPicklistsDict()
+        {
+            dcs_with_picklists.ForEach(delegate (string dc)
+            {
+                foreach (string val in mapping.getContentList(dc))
+                {
+                    mappedPicklists.Add(dc + "_" + val, false);
+                }
+            });
+        }
+
         private void fillGrid()
         {
             Grid grid = new Grid();
@@ -54,13 +69,11 @@ namespace MultiTermTBXMapper.Menu
             //Cycle through each Picklist
 
 
-            dcs_with_picklists.ForEach(delegate(string dc)
+            mapping.getContentList(dcs_with_picklists[index])?.ForEach(delegate (string content)
             {
-                mapping.getContentList(dc)?.ForEach(delegate (string content)
-                {
-                    createPicklistMapControl(dc, content, ref grid);
-                });
+                createPicklistMapControl(dcs_with_picklists[index], content, ref grid);
             });
+            
         }
 
         private void createPicklistMapControl(string user_dc, string pl_content, ref Grid grid)
@@ -110,15 +123,22 @@ namespace MultiTermTBXMapper.Menu
             string dc = dcs_with_picklists[index];
 
             mapping.setPicklistMap(dc, user_pl, tbx_pl);
+            mappedPicklists[dc + "_" + user_pl] = true;
             checkCompletion();
         }
 
         private void checkCompletion()
         {
-            if (mapping.isGroupMappedToTBXPicklist(ref dcs_with_picklists))
+            foreach (bool val in mappedPicklists.Values)
             {
-                submit.IsEnabled = true;
+                if (!val)
+                {
+                    submit.IsEnabled = false;
+                    return;
+                }
             }
+
+            submit.IsEnabled = true;
         }
         public void UtilizeState(object state)
         {

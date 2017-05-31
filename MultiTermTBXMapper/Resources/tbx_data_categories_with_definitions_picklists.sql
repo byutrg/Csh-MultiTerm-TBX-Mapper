@@ -97,6 +97,27 @@ INSERT INTO `picklists` VALUES (89,'plural',NULL,49);
 INSERT INTO `picklists` VALUES (90,'dual',NULL,49);
 INSERT INTO `picklists` VALUES (91,'mass',NULL,49);
 INSERT INTO `picklists` VALUES (92,'otherNumber',NULL,49);
+INSERT INTO `picklists` VALUES (93,'entryTerm',NULL,69);
+INSERT INTO `picklists` VALUES (94,'equation',NULL,69);
+INSERT INTO `picklists` VALUES (95,'formula',NULL,69);
+INSERT INTO `picklists` VALUES (96,'fullForm',NULL,69);
+INSERT INTO `picklists` VALUES (97,'initialism',NULL,69);
+INSERT INTO `picklists` VALUES (98,'internationalism',NULL,69);
+INSERT INTO `picklists` VALUES (99,'internationalScientificTerm',NULL,69);
+INSERT INTO `picklists` VALUES (100,'logicalExpression',NULL,69);
+INSERT INTO `picklists` VALUES (101,'partNumber',NULL,69);
+INSERT INTO `picklists` VALUES (102,'phraseologicalUnit',NULL,69);
+INSERT INTO `picklists` VALUES (103,'transcribedForm',NULL,69);
+INSERT INTO `picklists` VALUES (104,'transliteratedForm',NULL,69);
+INSERT INTO `picklists` VALUES (105,'shortForm',NULL,69);
+INSERT INTO `picklists` VALUES (106,'shortcut',NULL,69);
+INSERT INTO `picklists` VALUES (107,'sku',NULL,69);
+INSERT INTO `picklists` VALUES (108,'standardText',NULL,69);
+INSERT INTO `picklists` VALUES (109,'string',NULL,69);
+INSERT INTO `picklists` VALUES (110,'symbol',NULL,69);
+INSERT INTO `picklists` VALUES (111,'synonym',NULL,69);
+INSERT INTO `picklists` VALUES (112,'synonymousPhrase',NULL,69);
+INSERT INTO `picklists` VALUES (113,'variant',NULL,69);
 CREATE TABLE "categories" (
 	`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`name`	varchar(36) NOT NULL,
