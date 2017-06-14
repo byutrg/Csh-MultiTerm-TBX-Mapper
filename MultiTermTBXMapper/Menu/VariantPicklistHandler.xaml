@@ -11,17 +11,7 @@
             <RowDefinition Height="13*"/>
             <RowDefinition Height="228*"/>
         </Grid.RowDefinitions>
-        <DockPanel HorizontalAlignment="Stretch" Height="22" LastChildFill="False" VerticalAlignment="Top" Grid.Row="0">
-            <Menu DockPanel.Dock="Top">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Import"/>
-                    <MenuItem Header="_Save" />
-                    <MenuItem Header="_Export" />
-                    <MenuItem Header="E_xit" />
-                </MenuItem>
-                <MenuItem Header="_About"/>
-            </Menu>
-        </DockPanel>
+        <local:MenuBar/>
         <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White" Grid.Row="1" >
             <Grid Height="416" Width="805" >
                 <Grid.RowDefinitions>

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
 
 namespace MultiTermTBXMapper
@@ -110,6 +107,12 @@ namespace MultiTermTBXMapper
                 }
             }
             return false;
+        }
+
+        public static string rgxReplace(string pattern, string replacement, string input)
+        {
+            Regex rgx = new Regex(pattern);
+            return rgx.Replace(input, replacement);
         }
 
     }

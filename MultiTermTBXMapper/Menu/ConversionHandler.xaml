@@ -10,20 +10,10 @@
             <RowDefinition Height="19*"/>
             <RowDefinition Height="188*"/>
         </Grid.RowDefinitions>
-        <DockPanel HorizontalAlignment="Stretch" Height="22" LastChildFill="False" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
-            <Menu DockPanel.Dock="Top">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Import"/>
-                    <MenuItem Header="_Save" />
-                    <MenuItem Header="_Export" />
-                    <MenuItem Header="E_xit" />
-                </MenuItem>
-                <MenuItem Header="_About"/>
-            </Menu>
-        </DockPanel>
+        <local:MenuBar/>
         <Canvas HorizontalAlignment="Stretch" Grid.Row="1" Background="White" >
             <Grid Height="382" Width="805">
-                <TextBlock Text="Converting..." VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="40" />
+                <TextBlock Name="textblock_conversionStatus" Text="Converting..." VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" TextWrapping="WrapWithOverflow" />
             </Grid>
         </Canvas>
     </Grid>

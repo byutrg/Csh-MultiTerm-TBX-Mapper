@@ -11,17 +11,7 @@
             <RowDefinition Height="18*"/>
             <RowDefinition Height="433*"/>
         </Grid.RowDefinitions>
-        <DockPanel HorizontalAlignment="Left" Height="22" LastChildFill="False" VerticalAlignment="Top" Width="807" Grid.Row="0">
-            <Menu DockPanel.Dock="Top">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Import"/>
-                    <MenuItem Header="_Save" />
-                    <MenuItem Header="_Export" />
-                    <MenuItem Header="E_xit" />
-                </MenuItem>
-                <MenuItem Header="_About"/>
-            </Menu>
-        </DockPanel>
+        <local:MenuBar/>
         <Canvas x:Name="canvas_welcome" Grid.Row="1" Background="White">
             <Button x:Name="btn_import" Content="Import Termbase" Canvas.Left="237" Canvas.Top="216" Width="359" Height="132" Click="btn_import_Click"/>
             <TextBlock x:Name="textBlock" Margin="109,81,109,263" TextWrapping="Wrap"><Run Background="White" Foreground="Blue" FontSize="24" FontFamily="Times New Roman" Text="&#x9;&#x9;"/><Run Background="White" FontSize="24" FontFamily="Times New Roman" Text="Welcome to the Multiterm Mapping Utility!"/><LineBreak/><Span Background="White" Foreground="Blue" FontSize="12.6666666666667" FontFamily="Consolas"><Run/></Span><LineBreak/><Run Background="White" Foreground="Blue" FontSize="12.6666666666667" FontFamily="Consolas"/><LineBreak/><Run Background="White" Foreground="Blue" FontSize="12.6666666666667" FontFamily="Consolas" Text="&#x9;&#x9;&#x9;"/><Run Background="White" FontSize="12.6666666666667" FontFamily="Consolas" Text="Please click 'Import Termbase' to begin."/></TextBlock>

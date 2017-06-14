@@ -25,6 +25,7 @@ namespace MultiTermTBXMapper.Menu
             InitializeComponent();
 
             this.filename = filename;
+            Globals.filename = filename;
 
             mapControl.ListBoxItems += value => setMapping(value);
 

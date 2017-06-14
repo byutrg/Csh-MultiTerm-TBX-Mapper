@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace MultiTermTBXMapper.Menu
 {
@@ -25,8 +28,49 @@ namespace MultiTermTBXMapper.Menu
             Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings();
             
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(fullMapping, settings);
+            json = fixJSON(json);
 
-            Console.Write(json);
+            string mappingFile = Path.GetTempFileName();
+
+            File.WriteAllText(mappingFile, json);
+
+            Process proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = ".\\Perl\\mt2tbx.exe",
+                    Arguments = mappingFile + " " + Globals.filename,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+
+            string tbxOutput = "";
+            proc.Start();
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                tbxOutput = proc.StandardOutput.ReadLine();
+            }
+
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+
+            dlg.DefaultExt = ".tbx";
+            dlg.Filter = "TBX Files (*.tbx)|*.tbx";
+
+            bool? result = dlg.ShowDialog();
+
+            if (result == true)
+            { 
+                if (File.Exists(dlg.FileName))
+                {
+                    File.Delete(dlg.FileName);
+                }
+
+                File.Move(tbxOutput.Replace("/", "\\"), dlg.FileName);
+            }
+
+            textblock_conversionStatus.Text = "Your termbase has been converted and saved as " + dlg.FileName;
         }
 
         private void map()
@@ -51,6 +95,18 @@ namespace MultiTermTBXMapper.Menu
 
 
         }
+
+        private string fixJSON(string json)
+        { 
+            json = Methods.rgxReplace("^\\{", "[", json);
+            json = Methods.rgxReplace("\\}(?!.+?)", "]", json);
+            json = Methods.rgxReplace("\\\"(dialect|xcs|catMap|empty)\\\":", "", json);
+            json = Methods.rgxReplace("\\{\\\"teasp\\\":", "", json);
+            json = Methods.rgxReplace("\\]\\}\\]\\]", "]]]", json);
+            return json;
+        }
+
+        
 
         private void handleConceptGrp(string dc)
         {
