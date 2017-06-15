@@ -145,6 +145,7 @@
     <Compile Include="Menu\VariantPicklistMapControl.xaml.cs">
       <DependentUpon>VariantPicklistMapControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SerializableDictionary.cs" />
     <Compile Include="TBXDatabase.cs" />
     <Compile Include="ISwitchable.cs" />
     <Compile Include="Mapping.cs" />

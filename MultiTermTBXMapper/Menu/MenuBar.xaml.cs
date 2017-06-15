@@ -25,10 +25,20 @@ namespace MultiTermTBXMapper.Menu
             InitializeComponent();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MenuItem_About_Click(object sender, RoutedEventArgs e)
         {
             Window about = new About();
             about.Show();
+        }
+
+        private void MenuItem_Open_Click(object sender, RoutedEventArgs e)
+        {
+            Globals.loadGlobals();
+        }
+        
+        private void MenuItem_Save_Click(object sender, RoutedEventArgs e)
+        { 
+            Globals.saveGlobals();
         }
     }
 }

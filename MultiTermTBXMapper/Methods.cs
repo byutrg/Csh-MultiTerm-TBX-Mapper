@@ -114,6 +114,5 @@ namespace MultiTermTBXMapper
             Regex rgx = new Regex(pattern);
             return rgx.Replace(input, replacement);
         }
-
     }
 }

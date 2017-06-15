@@ -10,19 +10,18 @@ namespace MultiTermTBXMapper.Menu
     /// </summary>
     public partial class PickListHandler : UserControl, ISwitchable
     {
-        private MappingDict mapping = new MappingDict();
         private List<string> dcs_with_picklists = new List<string>();
         private Dictionary<string, bool> mappedPicklists = new Dictionary<string,bool>();
         private Dictionary<string, List<string[]>> tbx_picklists = TBXDatabase.getPicklists();
 
         private int index = 0;
 
-        public PickListHandler(ref MappingDict mapping)
+        public PickListHandler()
         {
             InitializeComponent();
 
-            this.mapping = mapping;
-            dcs_with_picklists = mapping.getDCsWithPicklists();
+            Globals.stage = 3;
+            dcs_with_picklists = Globals.mappingDict.getDCsWithPicklists();
 
             fillMappedPicklistsDict();
 
@@ -53,7 +52,7 @@ namespace MultiTermTBXMapper.Menu
         {
             dcs_with_picklists.ForEach(delegate (string dc)
             {
-                foreach (string val in mapping.getContentList(dc))
+                foreach (string val in Globals.mappingDict.getContentList(dc))
                 {
                     mappedPicklists.Add(dc + "_" + val, false);
                 }
@@ -69,7 +68,7 @@ namespace MultiTermTBXMapper.Menu
             //Cycle through each Picklist
 
 
-            mapping.getContentList(dcs_with_picklists[index])?.ForEach(delegate (string content)
+            Globals.mappingDict.getContentList(dcs_with_picklists[index])?.ForEach(delegate (string content)
             {
                 createPicklistMapControl(dcs_with_picklists[index], content, ref grid);
             });
@@ -82,17 +81,17 @@ namespace MultiTermTBXMapper.Menu
 
             plmc.select += value => setMapping(value[0], value[1]);
 
-            string tbx_dc = mapping.getTBXContentMap(user_dc)?.Get(pl_content);
+            string tbx_dc = Globals.mappingDict.getTBXContentMap(user_dc)?.Get(pl_content);
 
             if (tbx_dc == null)
             {
-                tbx_dc = mapping.getTBXMappingList(user_dc)[0];
-                mapping.getTBXContentMap(user_dc).Add(pl_content, tbx_dc);
+                tbx_dc = Globals.mappingDict.getTBXMappingList(user_dc)[0];
+                Globals.mappingDict.getTBXContentMap(user_dc).Add(pl_content, tbx_dc);
             }
 
-            string tbx_selected = mapping.getPicklistMapValue(user_dc, pl_content);
+            string tbx_selected = Globals.mappingDict.getPicklistMapValue(user_dc, pl_content);
 
-            fillTBXComboBox(ref plmc.combo_tbx_picklist, mapping.getTBXContentMap(user_dc)?.Get(pl_content), tbx_selected);
+            fillTBXComboBox(ref plmc.combo_tbx_picklist, Globals.mappingDict.getTBXContentMap(user_dc)?.Get(pl_content), tbx_selected);
 
             grid.Children.Add(plmc);
 
@@ -122,7 +121,7 @@ namespace MultiTermTBXMapper.Menu
         {
             string dc = dcs_with_picklists[index];
 
-            mapping.setPicklistMap(dc, user_pl, tbx_pl);
+            Globals.mappingDict.setPicklistMap(dc, user_pl, tbx_pl);
             mappedPicklists[dc + "_" + user_pl] = true;
             checkCompletion();
         }
@@ -159,7 +158,7 @@ namespace MultiTermTBXMapper.Menu
 
         private void submit_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new ConversionHandler(mapping));
+            Switcher.Switch(new ConversionHandler());
         }
     }
 }

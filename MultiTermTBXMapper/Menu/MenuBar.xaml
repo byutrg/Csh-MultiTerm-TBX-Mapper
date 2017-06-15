@@ -8,12 +8,12 @@
     <DockPanel HorizontalAlignment="Left" Height="22" LastChildFill="False" VerticalAlignment="Top" Width="807" Grid.Row="0">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_Import"/>
-                <MenuItem Header="_Save" />
-                <MenuItem Header="_Export" />
+                <MenuItem Header="_Convert New"/>
+                <MenuItem Header="_Open" Click="MenuItem_Open_Click" />
+                <MenuItem Header="_Save" Click="MenuItem_Save_Click" />
                 <MenuItem Header="E_xit" />
             </MenuItem>
-            <MenuItem Header="_About" Click="MenuItem_Click"/>
+            <MenuItem Header="_About" Click="MenuItem_About_Click"/>
         </Menu>
     </DockPanel>
 </UserControl>

@@ -9,18 +9,17 @@ namespace MultiTermTBXMapper.Menu
     /// </summary>
     public partial class VariantPicklistHandler : UserControl
     {
-        private MappingDict mapping;
         private List<string> datcats = new List<string>();
-        private bool skip = false;
 
         private int index = 0;
 
-        public VariantPicklistHandler(ref MappingDict mapping, List<string> datcats)
+        public VariantPicklistHandler(List<string> datcats)
         {
             InitializeComponent();
 
-            this.mapping = mapping;
+            Globals.stage = 2;
             this.datcats = datcats;
+            Globals.locals = new List<object> { datcats };
 
             vpmc.map += value =>
             {
@@ -28,7 +27,7 @@ namespace MultiTermTBXMapper.Menu
                 string user_pl = value[0];
                 string tbx_dc = value[1];
 
-                this.mapping.setTBXContentMap(user_dc, user_pl, tbx_dc);
+                Globals.mappingDict.setTBXContentMap(user_dc, user_pl, tbx_dc);
 
                 checkCompletion();    
             };
@@ -46,7 +45,7 @@ namespace MultiTermTBXMapper.Menu
 
         private void checkCompletion()
         {
-            if(mapping.isGroupMappedToTBX(ref datcats))
+            if(Globals.mappingDict.isGroupMappedToTBX(ref datcats))
             {
                 vpmc.btn_submit.IsEnabled = true;
             }
@@ -59,7 +58,7 @@ namespace MultiTermTBXMapper.Menu
             { 
                 textblock_user_dc.Text = datcats[index];
                 vpmc.clear();
-                vpmc.fillListBoxes(mapping.getTBXMappingList(datcats[index]), mapping.getContentList(datcats[index]) as List<string>);
+                vpmc.fillListBoxes(Globals.mappingDict.getTBXMappingList(datcats[index]), Globals.mappingDict.getContentList(datcats[index]) as List<string>);
             }
         }
 
@@ -77,7 +76,7 @@ namespace MultiTermTBXMapper.Menu
 
         private void nextPage()
         {
-            Switcher.Switch(new PickListHandler(ref mapping));
+            Switcher.Switch(new PickListHandler());
         }
     }
 }

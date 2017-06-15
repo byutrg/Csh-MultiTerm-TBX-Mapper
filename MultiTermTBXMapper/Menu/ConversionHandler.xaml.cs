@@ -14,15 +14,13 @@ namespace MultiTermTBXMapper.Menu
     public partial class ConversionHandler : UserControl, ISwitchable
     {
         private Mapping fullMapping = new Mapping();
-        private MappingDict mappingDict;
         private Dictionary<string, Dictionary<string, string>> tbxInfo = TBXDatabase.getDCInfo();
 
-        public ConversionHandler(MappingDict mapping)
+        public ConversionHandler()
         {
             InitializeComponent();
 
-            mappingDict = mapping;
-
+            Globals.stage = 4;
             map();
 
             Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings();
@@ -68,14 +66,18 @@ namespace MultiTermTBXMapper.Menu
                 }
 
                 File.Move(tbxOutput.Replace("/", "\\"), dlg.FileName);
+                textblock_conversionStatus.Text = "Your termbase has been converted and saved as " + dlg.FileName;
             }
-
-            textblock_conversionStatus.Text = "Your termbase has been converted and saved as " + dlg.FileName;
+            else
+            {
+                Switcher.Switch(new ConversionHandler());
+            }
+            
         }
 
         private void map()
         {
-            foreach (string dc in mappingDict.Keys)
+            foreach (string dc in Globals.mappingDict.Keys)
             {
                 if (isConceptGrp(dc))
                 {
@@ -111,13 +113,13 @@ namespace MultiTermTBXMapper.Menu
         private void handleConceptGrp(string dc)
         {
             //Handle all simple cases: no multiple tbx datcats, no picklists
-            if (mappingDict.getTBXMappingList(dc).Count < 2 || (!mappingDict.hasPicklist(dc) && !mappingDict.hasSplitContents(dc)))
+            if (Globals.mappingDict.getTBXMappingList(dc).Count < 2 || (!Globals.mappingDict.hasPicklist(dc) && !Globals.mappingDict.hasSplitContents(dc)))
             {
                 TemplateSet ts = createTemplateSet(dc);
                 fullMapping.catMap["concept"].Add(dc, ts);
             }
             //Handle single tbx datcat with picklists
-            else if (mappingDict.hasPicklist(dc) && (mappingDict.getTBXMappingList(dc).Count < 2 || !mappingDict.hasSplitContents(dc)))
+            else if (Globals.mappingDict.hasPicklist(dc) && (Globals.mappingDict.getTBXMappingList(dc).Count < 2 || !Globals.mappingDict.hasSplitContents(dc)))
             {
                 string tbx_dc = getTBXdc(dc);
 
@@ -134,7 +136,7 @@ namespace MultiTermTBXMapper.Menu
         {
 
             //Handle all simple cases: no multiple tbx datcats, no picklists
-            if (mappingDict.getTBXMappingList(dc).Count < 2 || (!mappingDict.hasPicklist(dc) && !mappingDict.hasSplitContents(dc)))
+            if (Globals.mappingDict.getTBXMappingList(dc).Count < 2 || (!Globals.mappingDict.hasPicklist(dc) && !Globals.mappingDict.hasSplitContents(dc)))
             {
                 TemplateSet ts = createTemplateSet(dc);
 
@@ -146,7 +148,7 @@ namespace MultiTermTBXMapper.Menu
         private void handleTermGrp(string dc)
         {
             //Handle all simple cases: no multiple tbx datcats, no picklists
-            if (mappingDict.getTBXMappingList(dc).Count < 2 || (!mappingDict.hasPicklist(dc) && !mappingDict.hasSplitContents(dc)))
+            if (Globals.mappingDict.getTBXMappingList(dc).Count < 2 || (!Globals.mappingDict.hasPicklist(dc) && !Globals.mappingDict.hasSplitContents(dc)))
             {
                 TemplateSet ts = createTemplateSet(dc);
 
@@ -159,14 +161,14 @@ namespace MultiTermTBXMapper.Menu
         {
             string tbx_dc = null;
 
-            foreach (string val in mappingDict.getTBXContentMap(dc)?.Values)
+            foreach (string val in Globals.mappingDict.getTBXContentMap(dc)?.Values)
             {
                 tbx_dc = val;
                 break;
             }
             if (tbx_dc == null)
             {
-                tbx_dc = mappingDict.getTBXMappingList(dc)?[0];
+                tbx_dc = Globals.mappingDict.getTBXMappingList(dc)?[0];
             }
 
             return tbx_dc;
@@ -189,19 +191,19 @@ namespace MultiTermTBXMapper.Menu
 
         private bool isConceptGrp(string dc)
         {
-            List<string> grp = mappingDict.levelMap["conceptGrp"];
+            List<string> grp = Globals.mappingDict.levelMap["conceptGrp"];
             return (Methods.inList(ref grp, dc)) ? true : false;
         }
 
         private bool isLanguageGrp(string dc)
         {
-            List<string> grp = mappingDict.levelMap["languageGrp"];
+            List<string> grp = Globals.mappingDict.levelMap["languageGrp"];
             return (Methods.inList(ref grp, dc)) ? true : false;
         }
 
         private bool isTermGrp(string dc)
         {
-            List<string> grp = mappingDict.levelMap["termGrp"];
+            List<string> grp = Globals.mappingDict.levelMap["termGrp"];
             return (Methods.inList(ref grp, dc)) ? true : false;   
         }
 

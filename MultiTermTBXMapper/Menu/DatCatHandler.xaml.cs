@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -13,24 +14,30 @@ namespace MultiTermTBXMapper.Menu
     public partial class DatCatHandler : UserControl, ISwitchable
     {
         public List<string> datcats = new List<string>();
-        public MappingDict mapping = new MappingDict();
-
-        private string filename;
+        //public MappingDict mapping = new MappingDict();
 
         private int index = 0;
         private string[] indexes_visited;
 
-        public DatCatHandler(string filename)
+        public DatCatHandler(bool isLoaded = false)
         {
             InitializeComponent();
 
-            this.filename = filename;
-            Globals.filename = filename;
+            Globals.stage = 1;
 
             mapControl.ListBoxItems += value => setMapping(value);
 
-            loadDatCats();
-            indexes_visited = new string[datcats.Count];
+            if (isLoaded == false)
+            {
+                loadDatCats();
+                indexes_visited = new string[datcats.Count];
+                Globals.locals = new List<object> { datcats, indexes_visited };
+            }
+            else
+            {
+                datcats = JsonConvert.DeserializeObject<List<string>>(Globals.locals[0].ToString());
+                indexes_visited = JsonConvert.DeserializeObject<string[]>(Globals.locals[1].ToString());
+            }
 
             cycleIndexes();
 
@@ -54,7 +61,7 @@ namespace MultiTermTBXMapper.Menu
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.DtdProcessing = DtdProcessing.Ignore;
-            XmlReader reader = XmlReader.Create(filename, settings);
+            XmlReader reader = XmlReader.Create(Globals.filename, settings);
 
             bool start = false;
             int level = 0;
@@ -88,18 +95,18 @@ namespace MultiTermTBXMapper.Menu
                         if (!Methods.inList(ref datcats, dc))
                         {
                             datcats.Add(dc);
-                            mapping.Add(dc);
+                            Globals.mappingDict.Add(dc);
 
                             switch(level)
                             {
                                 case 1:
-                                    mapping.levelMap["conceptGrp"].Add(dc);
+                                    Globals.mappingDict.levelMap["conceptGrp"].Add(dc);
                                     break;
                                 case 2:
-                                    mapping.levelMap["languageGrp"].Add(dc);
+                                    Globals.mappingDict.levelMap["languageGrp"].Add(dc);
                                     break;
                                 case 3:
-                                    mapping.levelMap["termGrp"].Add(dc);
+                                    Globals.mappingDict.levelMap["termGrp"].Add(dc);
                                     break;
                             }
                         }
@@ -111,10 +118,10 @@ namespace MultiTermTBXMapper.Menu
                         {
                             if (textReader.NodeType == XmlNodeType.Text)
                             {
-                                List<string> values = mapping.getContentList(dc) as List<string>;
+                                List<string> values = Globals.mappingDict.getContentList(dc) as List<string>;
                                 if (!Methods.inList(ref values, reader.Value))
                                 {
-                                    mapping.getContentList(dc).Add(textReader.Value);
+                                    Globals.mappingDict.getContentList(dc).Add(textReader.Value);
                                 }
                             }
                         }
@@ -132,9 +139,9 @@ namespace MultiTermTBXMapper.Menu
             lbl_user_dc.Content = datcats[index];
             mapControl.clear();
 
-            if (mapping.getTBXMappingList(datcats[index])?.Count > 0)
+            if (Globals.mappingDict.getTBXMappingList(datcats[index])?.Count > 0)
             {
-                mapControl.fillItems(mapping.getTBXMappingList(datcats[index]));
+                mapControl.fillItems(Globals.mappingDict.getTBXMappingList(datcats[index]));
             }
 
             if(!Methods.inArray(ref indexes_visited,index.ToString()))
@@ -150,15 +157,15 @@ namespace MultiTermTBXMapper.Menu
         {
             double mapped = 0;
 
-            foreach (string key in mapping.Keys)
+            foreach (string key in Globals.mappingDict.Keys)
             {
-                if (mapping.getTBXMappingList(key)?.Count > 0)
+                if (Globals.mappingDict.getTBXMappingList(key)?.Count > 0)
                 {
                     mapped++;
                 }
             }
 
-            double percent = Math.Round(mapped * 100 / (double)mapping.Keys.Count(), 2, MidpointRounding.AwayFromZero);
+            double percent = Math.Round(mapped * 100 / (double)Globals.mappingDict.Keys.Count(), 2, MidpointRounding.AwayFromZero);
 
             submit.IsEnabled = (percent == 100) ? true : false; 
 
@@ -172,7 +179,7 @@ namespace MultiTermTBXMapper.Menu
 
         private void setMapping(TBXMappingList datcat_tbx)
         {
-            mapping.setTBXMappingList(datcats[index], datcat_tbx );
+            Globals.mappingDict.setTBXMappingList(datcats[index], datcat_tbx );
             updatePercentage();
         }
 
@@ -197,9 +204,9 @@ namespace MultiTermTBXMapper.Menu
         {
             List<string> dcs_with_multi_map = new List<string>();
 
-            foreach (string key in mapping.Keys)
+            foreach (string key in Globals.mappingDict.Keys)
             {
-                if (mapping.getTBXMappingList(key)?.Count > 1)
+                if (Globals.mappingDict.getTBXMappingList(key)?.Count > 1)
                 {
                     dcs_with_multi_map.Add(key);
                 }
@@ -215,11 +222,11 @@ namespace MultiTermTBXMapper.Menu
 
             if (dcs_with_multi_map.Count > 0)
             {
-                Switcher.Switch(new VariantPicklistHandler(ref mapping, dcs_with_multi_map));
+                Switcher.Switch(new VariantPicklistHandler(dcs_with_multi_map));
             }
             else
             {
-                Switcher.Switch(new PickListHandler(ref mapping));
+                Switcher.Switch(new PickListHandler());
             }
         }
     }

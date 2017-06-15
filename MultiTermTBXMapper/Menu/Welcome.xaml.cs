@@ -45,8 +45,8 @@ namespace MultiTermTBXMapper.Menu
 
             if (result == true)
             {
-                string filename = dlg.FileName;
-                Switcher.Switch(new DatCatHandler(filename));
+                Globals.filename = dlg.FileName;
+                Switcher.Switch(new DatCatHandler());
             }
         }
     }
