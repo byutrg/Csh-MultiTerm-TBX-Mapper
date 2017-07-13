@@ -31,7 +31,7 @@ namespace MultiTermTBXMapper.Menu
             json = fixJSON(json);
 
             string mappingFile = Path.GetTempFileName();
-
+            
             File.WriteAllText(mappingFile, json);
 
             Process proc = new Process
@@ -39,7 +39,7 @@ namespace MultiTermTBXMapper.Menu
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = ".\\Perl\\mt2tbx.exe",
-                    Arguments = mappingFile + " " + Globals.filename,
+                    Arguments = string.Format("\"{0}\" \"{1}\"", mappingFile.Replace(" ", "%%%%"), Globals.filename.Replace(" ", "%%%%")),
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
@@ -50,7 +50,7 @@ namespace MultiTermTBXMapper.Menu
             proc.Start();
             while (!proc.StandardOutput.EndOfStream)
             {
-                tbxOutput = proc.StandardOutput.ReadLine();
+                tbxOutput += proc.StandardOutput.ReadLine();
             }
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
