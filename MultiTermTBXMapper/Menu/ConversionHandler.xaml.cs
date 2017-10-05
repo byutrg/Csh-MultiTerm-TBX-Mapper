@@ -39,9 +39,10 @@ namespace MultiTermTBXMapper.Menu
             string json = fullMapping.Serialize();
 
             string mappingFile = Path.GetTempFileName();
-
+            
             File.WriteAllText(mappingFile, json);
 
+<<<<<<< HEAD
             //Process proc = new Process
             //{
             //    StartInfo = new ProcessStartInfo
@@ -61,6 +62,26 @@ namespace MultiTermTBXMapper.Menu
             //    tbxOutput += proc.StandardOutput.ReadLine();
             //    tbxOutput += "\n";
             //}
+=======
+            Process proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = ".\\Perl\\mt2tbx.exe",
+                    Arguments = string.Format("\"{0}\" \"{1}\"", mappingFile.Replace(" ", "%%%%"), Globals.filename.Replace(" ", "%%%%")),
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+
+            string tbxOutput = "";
+            proc.Start();
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                tbxOutput += proc.StandardOutput.ReadLine();
+            }
+>>>>>>> 010d53c86ed98b367075b2d2ee396af23c259ab2
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
 
