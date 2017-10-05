@@ -6,18 +6,26 @@ using System.Threading.Tasks;
 
 namespace MultiTermTBXMapper
 {
-    class Mapping
+    partial class Mapping
     {
-        public string dialect = "TBX-Default";
-        public string xcs = "TBXXCSV02.xcs";
+        public string dialect = "";
+        public string xcs = "";
         public CategoricalMapping catMap = new CategoricalMapping();
         public object empty = new object();
 
-        public Mapping()
+        //initialize Mapping object
+        public Mapping(string dialect = "TBX-Default", string xcs = "TBXXCSV02.xcs")
         {
-           
+            this.dialect = dialect;
+            this.xcs = xcs;
         }
 
+        public string Serialize()
+        {
+            return string.Format("[\"{0}\", \"{1}\", {2}, {3}]", dialect, xcs, catMap.Serialize(), "{}");
+        }
+
+        //interior function for grabbing the correct target based on XML representation
         public string getTarget(string elt)
         {
             switch (elt)
@@ -50,6 +58,7 @@ namespace MultiTermTBXMapper
             }
         }
 
+        //function for constructing XML representation
         public string getEltAtt(string elt, string type)
         {
             switch(elt)
@@ -91,11 +100,12 @@ namespace MultiTermTBXMapper
                 case "<note>":
                     return "<note />";
                 default:
-                    return getXMLnoContent("termNote", "unknownTermType");
+                    return getXMLnoContent("unhandled", type);
             }
         }
 
-        private string getXMLnoContent(string elt, string type)
+        //function used to aide in constructing xml representations
+        private static string getXMLnoContent(string elt, string type)
         {
             return "<" + elt + " type='" + type + "' />";
         }
@@ -109,17 +119,66 @@ namespace MultiTermTBXMapper
             Add("language", new OneLevel("language"));
             Add("term", new OneLevel("term"));
         }
+
+        public string Serialize()
+        {
+            string s = "{";
+            int i = 0;
+            foreach (string key in Keys)
+            {
+                if (i > 0)
+                {
+                    s += ",";
+                }
+                s += string.Format("\"{0}\": {1}", key, this[key].Serialize());
+                i++;
+            }
+            s += "}";
+
+            return s;
+        }
     }
 
+    // a "OneLevel" is just a simple way to refer to the concept/language/term key sections of the JSON
     class OneLevel : Dictionary<string, TemplateSet>
     {
-        public OneLevel(string level) { }
-
-        public void addConcept(string datcat, TemplateSet ts)
+        private class InvalidLevelException : Exception
         {
-
+            public InvalidLevelException() : base("Only levels 'concept', 'language', and 'term' are allowed as OneLevel values.") { }
         }
 
+        public OneLevel(string level)
+        {
+            if (level != "concept" && level != "language" && level != "term")
+            {
+                throw new InvalidLevelException();
+            }
+        }
+
+        /// <summary>
+        /// Serialize to JSON string
+        /// </summary>
+        /// <returns></returns>
+        public string Serialize()
+        {
+            string s = "{";
+            
+            int i = 0;
+            foreach(string k in Keys)
+            {
+                if (i > 0)
+                {
+                    s += ",";
+                }
+                s += string.Format("\"{0}\": {1}", k, this[k].Serialize());
+                i++;
+            }
+
+            s += "}";
+            return s;
+        }
+
+        //constructs the default OneLevel construction
         private void addDefault(string level)
         {
             switch(level)
@@ -148,26 +207,28 @@ namespace MultiTermTBXMapper
             }
         }
 
-        private string getAuxInfo()
+        private static string getAuxInfo()
         {
             return "auxInfo";
         }
 
-        private string getTermNote()
+        private static string getTermNote()
         {
             return "termNote";
         }
 
-        private string getAdmin()
+        private static string getAdmin()
         {
             return "admin";
         }
 
-        private string getUnhandled()
+        private static string getUnhandled()
         {
             return "unhandled";
         }
 
+
+        // shortcuts for adding typical MultiTerm fields
         private TemplateSet addSubject()
         {
             TemplateSet ts = new TemplateSet();
@@ -346,10 +407,63 @@ namespace MultiTermTBXMapper
         {
             Add(new KeyList());
         }
+        /// <summary>
+        /// Serialize into JSON string
+        /// </summary>
+        public string Serialize()
+        {
+            string s = string.Format("[{0}", (this[0] as KeyList).Serialize());
 
+            if (Count > 1)
+            {
+                foreach(Teasp teasp in GetRange(1, Count-1))
+                {
+                    s += string.Format(", {0}", teasp.Serialize());
+                }
+            }
+
+            s += "]";
+
+            return s;
+        }
+
+        /// <summary>
+        /// Add a lisp of special teasps to the TemplateSet
+        /// </summary>
+        /// <param name="teasps">List of Teasps</param>
+        public void addSpecialTeasps(List<Teasp> teasps)
+        {
+            foreach(Teasp t in teasps)
+            {
+                addSpecialTeasp(t);
+            }
+        }
+
+        /// <summary>
+        /// Add a special Teasp to the TemplateSet
+        /// </summary>
+        /// <param name="teasp">A Teasp object</param>
         public void addSpecialTeasp(Teasp teasp)
         {
             Add(teasp);
+        }
+
+        /// <summary>
+        /// Shortcut method for adding multiple value groups to the KeyList in a TemplateSet
+        /// </summary>
+        /// <param name="vgs"></param>
+        public void addValueGroups(List<ValueGroup> vgs)
+        {
+            (this[0] as KeyList).addValueGroups(vgs);
+        }
+
+        /// <summary>
+        /// Shortcut method for adding ValueGroups to the Keylist in a TemplateSet
+        /// </summary>
+        /// <param name="group">ValueGroup object</param>
+        public void addValueGroup(ValueGroup vg)
+        {
+            (this[0] as KeyList).addValueGroup(vg);
         }
     }
 
@@ -360,9 +474,39 @@ namespace MultiTermTBXMapper
             Add(new Teasp());
         }
 
-        public void addValueGroup(ValueGroup group)
+        public string Serialize()
         {
-            Add(group);
+            string s = string.Format("[{0}", (this[0] as Teasp).Serialize());
+            if (Count > 1)
+            {
+                foreach (ValueGroup vg in GetRange(1, Count-1))
+                {
+                    s += string.Format(",{0}", vg.Serialize());
+                }
+            }
+            s += "]";
+            return s;
+        }
+
+        /// <summary>
+        /// method for adding multiple value groups to the KeyList
+        /// </summary>
+        /// <param name="vgs"></param>
+        public void addValueGroups(List<ValueGroup> vgs)
+        {
+            foreach (ValueGroup vg in vgs)
+            {
+                addValueGroup(vg);
+            }
+        }
+
+        /// <summary>
+        /// method for adding individual ValueGroups to the Keylist
+        /// </summary>
+        /// <param name="group">ValueGroup object</param>
+        public void addValueGroup(ValueGroup vg)
+        {
+            Add(vg);
         }
     }
 
@@ -370,6 +514,18 @@ namespace MultiTermTBXMapper
     {
         public object[] teasp = new object[4];
 
+        public string Serialize()
+        {
+            return string.Format("[\"{0}\",\"{1}\", {2},\"{3}\"]", teasp[0], teasp[1], teasp[2], teasp[3]);
+        }
+
+        /// <summary>
+        /// setAll overflow for TEASPs that contain substitutions
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="xml"></param>
+        /// <param name="sub"></param>
+        /// <param name="placement"></param>
         public void setAll(string target, string xml, Dictionary<string,string> sub, string placement = "content")
         {
             setTarget(target);
@@ -378,6 +534,13 @@ namespace MultiTermTBXMapper
             setPlacement(placement);
         }
 
+        /// <summary>
+        ///  setAll overflow for TEASPs with no substitutions
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="xml"></param>
+        /// <param name="sub"></param>
+        /// <param name="placement"></param>
         public void setAll(string target, string xml, string sub = "null", string placement = "content")
         {
             setTarget(target);
@@ -400,17 +563,30 @@ namespace MultiTermTBXMapper
         {
             if (sub != null)
             {
-                teasp[2] = sub;
+                //Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings();
+                teasp[2] = "{";
+                //teasp[2] = Newtonsoft.Json.JsonConvert.SerializeObject(sub);
+                int i = 0;
+                foreach(string k in sub.Keys)
+                {
+                    if (i > 0)
+                    {
+                        teasp[2] += ",";
+                    }
+                    teasp[2] += string.Format("\"{0}\": \"{1}\"", k, sub[k]);
+                    i++;
+                }
+                teasp[2] += "}";
             }
             else
             {
-                teasp[2] = "null";
+                teasp[2] = "\"null\"";
             }
         }
 
         public void setSub(string sub = "null")
         {
-            teasp[2] = sub;
+            teasp[2] = string.Format("\"{0}\"",sub);
         }
 
         public void setPlacement(string placement)
@@ -424,144 +600,30 @@ namespace MultiTermTBXMapper
         }
     }
 
-    class ValueGroup : List<string>{}
+    /// <summary>
+    /// A ValueGroup is a list which contains contents of user data categories which are all mapped to the same TBX data category.
+    /// </summary>
+    class ValueGroup : List<string>
+    {
+        public string Serialize()
+        {
+            string s = "[";
+
+            for (int i = 0; i < Count; i++)
+            {
+                if (i > 0)
+                {
+                    s += ", ";
+                }
+
+                s += string.Format("\"{0}\"", this[i]);
+            }
+            s += "]";
+
+            return s;
+        }
+
+    }
 
     class QueueDrainOrders : List<object>{}
-
-    class AdminXML
-    {
-        readonly string _value;
-
-        public AdminXML(string value)
-        {
-            _value = "<admin type='"+value+"' />";
-        }
-
-        public static implicit operator string(AdminXML admin)
-        {
-            return admin._value;
-        }
-        public static implicit operator AdminXML(string admin)
-        {
-            return new AdminXML(admin);
-        }
-    }
-
-    class DescripXML
-    {
-        readonly string _value;
-
-        public DescripXML(string value)
-        {
-            _value = "<descrip type='" + value + "' />";
-        }
-
-        public static implicit operator string(DescripXML descrip)
-        {
-            return descrip._value;
-        }
-        public static implicit operator DescripXML(string descrip)
-        {
-            return new DescripXML(descrip);
-        }
-    }
-
-    class TermNoteXML
-    {
-        readonly string _value;
-
-        public TermNoteXML(string value)
-        {
-            _value = "<termNote type='" + value + "' />";
-        }
-
-        public static implicit operator string(TermNoteXML termNote)
-        {
-            return termNote._value;
-        }
-        public static implicit operator TermNoteXML(string termNote)
-        {
-            return new TermNoteXML(termNote);
-        }
-    }
-
-    class NoteXML
-    {
-        readonly string _value;
-
-        public NoteXML()
-        {
-            _value = "<note />";
-        }
-
-        public static implicit operator string(NoteXML note)
-        {
-            return note._value;
-        }
-
-        public static implicit operator NoteXML(string n = null)
-        {
-            return new NoteXML();
-        }
-    }
-
-    class XrefXML
-    {
-        readonly string _value;
-
-        public XrefXML(string value)
-        {
-            _value = "<xref type='"+value+"' >see target</xref>";
-        }
-
-        public static implicit operator string(XrefXML xref)
-        {
-            return xref._value;
-        }
-
-        public static implicit operator XrefXML(string xref)
-        {
-            return new XrefXML(xref);
-        }
-    }
-
-    class RefXML
-    {
-        readonly string _value;
-
-        public RefXML(string value)
-        {
-            _value = "<ref type='" + value + "' />";
-        }
-
-        public static implicit operator string(RefXML @ref)
-        {
-            return @ref._value;
-        }
-
-        public static implicit operator RefXML(string @ref)
-        {
-            return new RefXML(@ref);
-        }
-    }
-
-    class TermCompListXML
-    {
-        readonly string _value;
-
-        public TermCompListXML(string value)
-        {
-            _value = "<termCompList type='" + value + "' />";
-        }
-
-        public static implicit operator string(TermCompListXML xml)
-        {
-            return xml._value;
-        }
-
-        public static implicit operator TermCompListXML(string xml)
-        {
-            return new TermCompListXML(xml);
-        }
-    }
 }

@@ -4,6 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/*
+ * This class file contains the classes needed to store gathered input from the user about the termbase
+ */
+
 namespace MultiTermTBXMapper
 {
     public class MappingDict : Dictionary<string, object[]>
@@ -20,6 +24,11 @@ namespace MultiTermTBXMapper
             return (getPicklistMap(key)?.Keys.Count > 0) ? true : false;
         }
 
+        /// <summary>
+        /// Shortcut method to see if a user data category has multiple contents which were assigned to multiple different TBX data categories.
+        /// </summary>
+        /// <param name="key">The name of the user data category</param>
+        /// <returns>Boolean</returns>
         public bool hasSplitContents(string key)
         {
             return (getTBXContentMap(key)?.Keys.Count > 1) ? true : false;
@@ -169,11 +178,21 @@ namespace MultiTermTBXMapper
             return this;
         }
         
+
+        /// <summary>
+        /// Adds unique content values to the content list
+        /// </summary>
+        /// <param name="key">user data category</param>
+        /// <param name="value">content value</param>
+        /// <returns></returns>
         public MappingDict setContentList(string key, UserDatCatContentList value)
         {
             if (ContainsKey(key))
             {
-                this[key][1] = value;
+                if (!Keys.Contains(key))
+                {
+                    this[key][1] = value;
+                }
             }
             else
             {
@@ -201,6 +220,13 @@ namespace MultiTermTBXMapper
             return this;
         }
 
+        /// <summary>
+        /// A shortcut to setting the content of a specific TBXContentMap.  Same as getting a specific TBXContentMap with a key and calling its "Set" method.
+        /// </summary>
+        /// <param name="dc_key">The name of the user data category</param>
+        /// <param name="content_key">A content value of a certain user data category</param>
+        /// <param name="tbx_dc">The TBX data category to which the content will be mapped</param>
+        /// <returns>The MappingDict instance</returns>
         public MappingDict setTBXContentMap(string dc_key, string content_key, string tbx_dc = null)
         {
             if (ContainsKey(dc_key))
@@ -224,10 +250,32 @@ namespace MultiTermTBXMapper
         }
     }
 
+    /// <summary>
+    /// A list of TBX data categories to which the User's data category from MultiTerm will be mapped.
+    /// </summary>
     public class TBXMappingList : List<string> {}
 
+    /// <summary>
+    /// UserDatCatContentList is a list of all of the values associated with a User data category from MultiTerm.
+    /// </summary>
     public class UserDatCatContentList : List<string> {}
 
+    /// <summary>
+    /// <para>
+    /// TBXContentMap is a dictionary where the keys correspond to the content values in a user's termbase, and the values are the TBX data categories to which thoses content values will be mapped.
+    /// </para>
+    /// <para>
+    /// It is most common that all conents will be mapped to the same TBX DC, but sometimes different content values may belong to different DCs.
+    /// </para>
+    /// <para>
+    /// Example:
+    /// <code>
+    ///     {
+    ///         'noun' : 'partOfSpeech'
+    ///     }
+    /// </code>
+    /// </para>
+    /// </summary>
     public class TBXContentMap : Dictionary<string, string>
     {
         public bool isMappedToTBX(string key)
@@ -260,6 +308,12 @@ namespace MultiTermTBXMapper
         }
     }
 
+    /// <summary>
+    /// PicklistMap is dictionary mapping of User data category content values to the appropriate corresponding TBX data category value.
+    /// <para>
+    /// Example: <code>{ 'preferred' : 'preferredTerm-admn-sts' }</code>
+    /// </para>
+    /// </summary>
     public class PicklistMap : Dictionary<string, string>
     {
         public bool isMappedToTBXPicklist(string key)

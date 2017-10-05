@@ -49,13 +49,36 @@ namespace MultiTermTBXMapper.Menu
             
         }
 
+        /// <summary>
+        /// Fills the mappedPicklists Dictionary with a key that is the combination of a data category and a content, and a boolean value.
+        /// <para>
+        /// Any content values which are mapped to TBX data categories which do not have picklists will be skipped.
+        /// </para>
+        /// <para>
+        /// <code>{ 'part of speech_noun' : false }</code>
+        /// </para>
+        /// <para>
+        /// This means that the content "noun" of "part of speech" has not been mapped to a TBX picklist value yet.
+        /// </para>
+        /// </summary>
         private void fillMappedPicklistsDict()
         {
             dcs_with_picklists.ForEach(delegate (string dc)
             {
                 foreach (string val in mapping.getContentList(dc))
                 {
-                    mappedPicklists.Add(dc + "_" + val, false);
+                    string[] keys = Methods.getKeyArray(tbx_picklists.Keys);
+                    if (mapping.getTBXMappingList(dc).Count < 2 ||  Methods.inArray(ref keys, mapping.getTBXContentMap(dc)?.Get(val)))
+                    {
+                        try
+                        {
+                            mappedPicklists.Add(dc + "_" + val, false);
+                        }
+                        catch (System.ArgumentException e)
+                        {
+                            continue;
+                        }
+                    }
                 }
             });
         }
@@ -71,7 +94,11 @@ namespace MultiTermTBXMapper.Menu
 
             mapping.getContentList(dcs_with_picklists[index])?.ForEach(delegate (string content)
             {
-                createPicklistMapControl(dcs_with_picklists[index], content, ref grid);
+                string[] keys = Methods.getKeyArray(tbx_picklists.Keys);
+                if (mapping.getTBXMappingList(dcs_with_picklists[index]).Count < 2 || Methods.inArray(ref keys, mapping.getTBXContentMap(dcs_with_picklists[index])?.Get(content)))
+                {
+                    createPicklistMapControl(dcs_with_picklists[index], content, ref grid);
+                }
             });
             
         }
@@ -105,7 +132,7 @@ namespace MultiTermTBXMapper.Menu
 
         private void fillTBXComboBox(ref ComboBox box, string tbx_dc_key, string tbx_selected = null)
         {
-            for(int i = 0; i < tbx_picklists[tbx_dc_key].Count; i++)
+            for (int i = 0; i < tbx_picklists[tbx_dc_key]?.Count; i++)
             {
                 ComboBoxItem item = new ComboBoxItem();
                 item.Content = tbx_picklists[tbx_dc_key][i][0];
