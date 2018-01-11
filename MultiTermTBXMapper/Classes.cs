@@ -13,6 +13,7 @@ namespace MultiTermTBXMapper
     public class MappingDict : Dictionary<string, object[]>
     {
         public Dictionary<string, List<string>> levelMap = new Dictionary<string, List<string>>() { { "conceptGrp", new List<string>() },{ "languageGrp", new List<string>() },{ "termGrp", new List<string>() } };
+        //public Dictionary<string, List<string>> queueBundlingMap = new Dictionary<string, List<string>>() { { "conceptGrp", new List<string>() }, { "languageGrp", new List<string>() }, { "termGrp", new List<string>() } };
 
         public void Add(string key)
         {

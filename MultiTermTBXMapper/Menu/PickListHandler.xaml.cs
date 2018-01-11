@@ -186,7 +186,7 @@ namespace MultiTermTBXMapper.Menu
 
         private void submit_Click(object sender, RoutedEventArgs e)
         {
-            Switcher.Switch(new ConversionHandler(mapping));
+            Switcher.Switch(new QueueDrainHandler(mapping));
         }
     }
 }

@@ -23,13 +23,15 @@ namespace MultiTermTBXMapper.Menu
             public InvalidLevelException() : base("Only levels 'concept', 'language', and 'term' are allowed as group values.") { }
         }
 
-        public ConversionHandler(MappingDict mapping)
+        public ConversionHandler(MappingDict mapping, QueueDrainOrders Orders)
         {
             InitializeComponent();
 
             mappingDict = mapping;
 
             map();
+
+            fullMapping.queueDrainOrders = Orders;
 
             //Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings();
 

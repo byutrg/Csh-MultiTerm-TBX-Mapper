@@ -11,6 +11,7 @@ namespace MultiTermTBXMapper
         public string dialect = "";
         public string xcs = "";
         public CategoricalMapping catMap = new CategoricalMapping();
+        public QueueDrainOrders queueDrainOrders = new QueueDrainOrders();
         public object empty = new object();
 
         //initialize Mapping object
@@ -22,7 +23,7 @@ namespace MultiTermTBXMapper
 
         public string Serialize()
         {
-            return string.Format("[\"{0}\", \"{1}\", {2}, {3}]", dialect, xcs, catMap.Serialize(), "{}");
+            return string.Format("[\"{0}\", \"{1}\", {2}, {3}, {4}]", dialect, xcs, catMap.Serialize(), queueDrainOrders.Serialize(), "{}");
         }
 
         //interior function for grabbing the correct target based on XML representation
@@ -625,5 +626,101 @@ namespace MultiTermTBXMapper
 
     }
 
-    class QueueDrainOrders : List<object>{}
+    public class QueueDrainOrders : Dictionary<string, QueueDrainLevel>
+    {
+        public QueueDrainOrders()
+        {
+            Add("conceptGrp", new QueueDrainLevel());
+            Add("languageGrp", new QueueDrainLevel());
+            Add("termGrp", new QueueDrainLevel());
+        }
+
+        public void AddOrder(string[] order)
+        {
+            QueueDrainOrder queueOrder = new QueueDrainOrder(order);
+
+            switch(order[3])
+            {
+                case "conceptGrp":
+                    this["conceptGrp"].Add(queueOrder);
+                    break;
+                case "languageGrp":
+                    this["languageGrp"].Add(queueOrder);
+                    break;
+                case "termGrp":
+                    this["termGrp"].Add(queueOrder);
+                    break;
+            }
+        }
+        
+        public string Serialize()
+        {
+            if (this["conceptGrp"].Count < 1 && this["languageGrp"].Count < 1 && this["termGrp"].Count < 1)
+            {
+                return "{}";
+            }
+
+            return string.Format("{{\"conceptGrp\":{0}, \"languageGrp\":{1}, \"termGrp\":{2}}}", this["conceptGrp"].Serialize(), this["languageGrp"].Serialize(), this["termGrp"].Serialize());
+        }
+    }
+
+    public class QueueDrainLevel : List<QueueDrainOrder>
+    {
+        public string Serialize()
+        {
+            string s = "[";
+
+            for(int i = 0; i < Count; i++)
+            {
+                if (i > 0)
+                {
+                    s += ",";
+                }
+                s += string.Format("{0}", this[i].Serialize());
+            }
+            s += "]";
+
+            return s;
+        }
+    }
+
+    public class QueueDrainOrder : List<string>
+    {
+        public QueueDrainOrder(string[] values)
+        {
+            Add(values[0]);
+            Add(values[1]);
+            Add(values[2]);
+        }
+
+        public string Serialize()
+        {
+            if (Count > 0)
+            {
+                return string.Format("[\"{0}\",\"{1}\",\"{2}\"]", this[0], this[1], this[2]);
+            }
+            else
+            {
+                return "[]";
+            }
+        }
+
+        //public bool addRule(int index, string rule)
+        //{
+        //    if (-1 < index && index > 2)
+        //    {
+        //        return false;
+        //    }
+
+        //    this[index] = rule;
+        //    return true;
+        //}
+
+        //public void addRules(string rule1, string rule2, string rule3)
+        //{
+        //    this[0] = rule1;
+        //    this[1] = rule2;
+        //    this[2] = rule3;
+        //}
+    }
 }

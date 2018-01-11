@@ -120,7 +120,16 @@
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes.cs" />
+    <Compile Include="ConstructQueueDrainOrder.xaml.cs">
+      <DependentUpon>ConstructQueueDrainOrder.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Globals.cs" />
+    <Compile Include="Menu\QueueDrainControl.xaml.cs">
+      <DependentUpon>QueueDrainControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menu\QueueDrainHandler.xaml.cs">
+      <DependentUpon>QueueDrainHandler.xaml</DependentUpon>
+    </Compile>
     <Compile Include="XMLConstructors.cs" />
     <Compile Include="Menu\DatCatHandler.xaml.cs">
       <DependentUpon>DatCatHandler.xaml</DependentUpon>
@@ -164,6 +173,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ConstructQueueDrainOrder.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -201,6 +214,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Menu\ConversionHandler.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Menu\QueueDrainControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Menu\QueueDrainHandler.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -255,6 +276,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\what%27s-this.png" />
     <EmbeddedResource Include="Resources\AboutInfo.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
