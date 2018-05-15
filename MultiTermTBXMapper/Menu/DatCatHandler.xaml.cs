@@ -65,17 +65,31 @@ namespace MultiTermTBXMapper.Menu
                     start = true;
                 if (start == true)
                 {
-                    if (reader.Name == "conceptGrp" || reader.Name == "languageGrp" || reader.Name == "termGrp")
+                    if (reader.Name == "back")
+                    {
+                        start = false;
+                        continue;
+                    }
+
+                    if (reader.Name == "conceptGrp" || reader.Name == "languageGrp" || reader.Name == "termGrp" ||
+                        reader.Name == "termEntry" || reader.Name == "langSet" || reader.Name == "tig" ||
+                        reader.Name == "conceptEntry" || reader.Name == "langSec" || reader.Name == "termSec")
                     {
                         switch(reader.Name)
                         {
                             case "conceptGrp":
+                            case "termEntry":
+                            case "conceptEntry":
                                 level = 1;
                                 break;
                             case "languageGrp":
+                            case "langSet":
+                            case "langSec":
                                 level = 2;
                                 break;
                             case "termGrp":
+                            case "tig":
+                            case "termSec":
                                 level = 3;
                                 break;
                         }
